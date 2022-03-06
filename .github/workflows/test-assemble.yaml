@@ -1,0 +1,47 @@
+name: Run Unit Tests and Assemble Fat Jar
+
+on:
+  push:
+    branches:
+      - 'master'
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 11
+          cache: gradle
+
+      - name: Run Tests
+        run: |
+          chmod +x ./gradlew
+          ./gradlew test
+        shell: bash
+
+      - name: Collect Tests Result
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: tests-result
+          path: ${{ github.workspace }}/build/reports/tests
+
+      - name: Assemble Fat Jar
+        run: |
+          chmod +x ./gradlew
+          ./gradlew shadowJar
+        shell: bash
+
+      - name: Upload Jar to Workflow Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: oop-2022-all.jar
+          path: build/libs/oop-2022-all.jar
