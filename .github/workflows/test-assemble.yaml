@@ -1,6 +1,7 @@
 name: Run Unit Tests and Assemble Fat Jar
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'master'
